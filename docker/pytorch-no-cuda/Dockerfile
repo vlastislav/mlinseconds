@@ -7,6 +7,7 @@ ARG VISION_VERSION=0.2.1
 RUN apt-get update && apt-get install -y --no-install-recommends \
          curl \
          ca-certificates \
+		 python-pip \
          bzip2 \
          git \
          vim && \
@@ -22,7 +23,7 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
 
 ENV PATH /opt/conda/bin:$PATH
 
-RUN pip install tensorboard tensorboardX
+RUN pip install tensorflow tensorboard tensorboardX
 
 WORKDIR /workspace
 RUN chmod -R a+w /workspace
