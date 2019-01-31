@@ -1,4 +1,6 @@
 import random
+import solutionmanager as sm
+
 from tensorboardX import SummaryWriter
 
 class GridSearch():
@@ -64,6 +66,7 @@ class GridSearch():
                 grid_choice[attr] = attr_list[attr_ind]
             choice_str = self.grid_choice_to_str(grid_choice)
             if choice_str not in grid_choice_history:
+                print(grid_choice)                                     #added printout
                 return choice_str, grid_choice
 
     def set_grid_choice(self, choice_str, grid_choice):

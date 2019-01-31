@@ -136,6 +136,7 @@ class SolutionManager():
         model = solution.create_model(input_size, output_size)
         context = TrainingContext(case_data, timer)
         step = solution.train_model(model, data, target, context)
+        print(step)
         execution_time = timer.get_execution_time()
         reject_reason = context.get_reject_reason()
         return step, execution_time, reject_reason, model
