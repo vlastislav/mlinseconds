@@ -1,6 +1,7 @@
 import random
 from tensorboardX import SummaryWriter
 
+
 class GridSearch():
     GRID_LIST_SUFFIX = '_grid'
     GRID_PARAM_SEPARATOR = ' '
@@ -64,6 +65,7 @@ class GridSearch():
                 grid_choice[attr] = attr_list[attr_ind]
             choice_str = self.grid_choice_to_str(grid_choice)
             if choice_str not in grid_choice_history:
+                print(grid_choice)
                 return choice_str, grid_choice
 
     def set_grid_choice(self, choice_str, grid_choice):

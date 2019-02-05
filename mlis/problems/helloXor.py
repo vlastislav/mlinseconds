@@ -6,8 +6,8 @@ import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import solutionmanager as sm
-from gridsearch import GridSearch
+from ..utils import solutionmanager as sm
+from ..utils import gridsearch as GridSearch
 
 class SolutionModel(nn.Module):
     def __init__(self, input_size, output_size, hidden_size):
@@ -40,7 +40,7 @@ class Solution():
         self.lr_grid = [3.0, 5.0, 8.0, 10.0]
         self.hidden_size_grid = [3, 5, 7, 9]
         self.hidden_size = 7
-        self.grid_search = GridSearch(self).set_enabled(False)
+        self.grid_search = GridSearch.GridSearch(self).set_enabled(False)
         #self.grid_search = GridSearch(self)
 
 

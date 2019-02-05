@@ -9,29 +9,55 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from ..utils import solutionmanager as sm
+from ..utils import gridsearch as GridSearch
 
 class SolutionModel(nn.Module):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, solution):
         super(SolutionModel, self).__init__()
         self.input_size = input_size
         sm.SolutionManager.print_hint("Hint[1]: Explore more deep neural networks")
-        self.hidden_size = 10
-        self.linear1 = nn.Linear(input_size, self.hidden_size)
-        self.linear2 = nn.Linear(self.hidden_size, output_size)
-
+        self.solution = solution
+        self.hidden_size = self.solution.hidden_size
+        if solution.grid_search.enabled:
+            torch.manual_seed(solution.random)
+        self.fc1 = nn.Linear(input_size, self.hidden_size)
+        self.fc2 = nn.Linear(self.hidden_size, self.hidden_size)
+        self.fc3 = nn.Linear(self.hidden_size, output_size)
+        self.fcS = nn.Sequential(
+                                nn.Linear(input_size, self.hidden_size),
+                                nn.ReLU(),
+                                nn.Dropout(0.2),
+                                nn.Linear(self.hidden_size, output_size)) 
+        self.fcR = nn.Hardtanh(-1, 1)
+        
     def forward(self, x):
-        x = self.linear1(x)
-        x = F.sigmoid(x)
-        x = self.linear2(x)
-        x = F.sigmoid(x)
-        return x
+
+                ###################################################################################x = F.rrelu(self.fc1(x))
+        x = x.view(x.size(0), -1)        
+                
+        x = F.softmax(self.fc1(x), dim = 1)
+        
+        #x = F.dropout(x, training=self.training)
+        #x = F.sigmoid(self.fc2(x))
+        
+        #x = F.dropout(x, training=self.training)
+        
+        #x = F.sigmoid(self.fcR(x))
+
+        return F.sigmoid(self.fc3(x))
 
 class Solution():
     def __init__(self):
         self = self
+        self.learning_rate = 1.0
+        self.lr = 5
+        self.lr_grid = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+        self.hidden_size_grid = [3, 5, 7, 11]
+        self.hidden_size = 7
+        self.grid_search = GridSearch.GridSearch(self).set_enabled(False)
 
     def create_model(self, input_size, output_size):
-        return SolutionModel(input_size, output_size)
+        return SolutionModel(input_size, output_size, self)      ######################################### add activation func here
 
     # Return number of steps used
     def train_model(self, model, train_data, train_target, context):
@@ -43,7 +69,7 @@ class Solution():
             # No more time left, stop training
             if time_left < 0.1:
                 break
-            optimizer = optim.SGD(model.parameters(), lr=1.0)
+            optimizer = optim.SGD(model.parameters(), lr=self.learning_rate)
             data = train_data
             target = train_target
             # model.parameters()...gradient set to zero
@@ -57,6 +83,8 @@ class Solution():
             correct = predict.eq(target.view_as(predict)).long().sum().item()
             # Total number of needed predictions
             total = target.view(-1).size(0)
+            if correct == total:
+                break
             # calculate loss
             sm.SolutionManager.print_hint("Hint[3]: Explore other loss functions", step)
             loss = ((output-target)**2).sum()
